@@ -3,7 +3,16 @@
 	"version": "0.0.1",
 	"description": "A basic scaffolding for building 11ty static websites.",
 	"type": "module",
-	"scripts": {},
+	"scripts": {
+		"dev": "eleventy --serve",
+		"build": "eleventy",
+		"format": "prettier --write .",
+		"lint:js": "cross-env DEBUG=eslint:eslint-helpers eslint",
+		"lint:css": "stylelint -f verbose \"./src/**/*.{css,scss}\"",
+		"lint:md": "markdownlint-cli2",
+		"lint": "npm run format &&  npm run lint:js && npm run lint:css && npm run lint:md",
+		"clean": "del-cli '_site' '.11ty-vite'"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/artislismanis/eleventy-starter.git"
