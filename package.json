@@ -1,0 +1,25 @@
+{
+	"name": "eleventy-starter",
+	"version": "0.0.1",
+	"description": "A basic scaffolding for building 11ty static websites.",
+	"type": "module",
+	"scripts": {},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/artislismanis/eleventy-starter.git"
+	},
+	"keywords": [
+		"11ty",
+		"vite",
+		"static site generator"
+	],
+	"author": "Artis Lismanis",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/artislismanis/eleventy-starter/issues"
+	},
+	"homepage": "https://github.com/artislismanis/eleventy-starter#readme",
+	"engines": {
+		"node": ">=22"
+	}
+}
