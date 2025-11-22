@@ -11,7 +11,10 @@ export default {
 	],
 	fix: false,
 	config: {
-		//MD033: false,
-		//'no-inline-html': false,
+		// https://github.com/DavidAnson/markdownlint?tab=readme-ov-file#rules--aliases
+		//'no-inline-html'
+		MD033: false,
+		// 'line-length', 80 char
+		MD013: false,
 	},
 };
