@@ -1,0 +1,61 @@
+// Direct import from node_modules (Vite handles this)
+@import 'prismjs/themes/prism-okaidia.css';
+
+// ============================================
+// Prism Syntax Highlighter - Diff Syntax
+// ============================================
+
+pre[class*='language-diff-'] {
+	--eleventy-code-padding: 1.25em;
+
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+
+.token {
+	&.deleted {
+		background-color: #8e2e2e;
+		color: inherit;
+	}
+
+	&.inserted {
+		background-color: #45824b;
+		color: inherit;
+
+		&:not(.prefix) {
+			display: block;
+			margin-left: calc(-1 * var(--eleventy-code-padding));
+			margin-right: calc(-1 * var(--eleventy-code-padding));
+			text-decoration: none; /* override del, ins, mark defaults */
+			color: inherit; /* override del, ins, mark defaults */
+		}
+	}
+
+	&.deleted:not(.prefix) {
+		display: block;
+		margin-left: calc(-1 * var(--eleventy-code-padding));
+		margin-right: calc(-1 * var(--eleventy-code-padding));
+		text-decoration: none; /* override del, ins, mark defaults */
+		color: inherit; /* override del, ins, mark defaults */
+	}
+
+	// Make the + and - characters unselectable for copy/paste
+	&.prefix {
+		&.unchanged,
+		&.inserted,
+		&.deleted {
+			user-select: none;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding-top: 2px;
+			padding-bottom: 2px;
+		}
+
+		&.inserted,
+		&.deleted {
+			width: var(--eleventy-code-padding);
+			background-color: #0003;
+		}
+	}
+}

@@ -14,6 +14,7 @@ export default [
 			'_site/**',
 			'.11ty-vite/**',
 			'public/**',
+			'.unlighthouse',
 			// add other dirs here
 		],
 	},

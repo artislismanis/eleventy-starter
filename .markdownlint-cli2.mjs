@@ -8,6 +8,7 @@ export default {
 		'./.11ty-vite/**',
 		'./node_modules/**',
 		'./public/**',
+		'./.unlighthouse/**',
 	],
 	fix: false,
 	config: {

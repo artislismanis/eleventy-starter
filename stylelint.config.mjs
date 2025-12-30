@@ -13,5 +13,9 @@ export default {
 		'./_site/**',
 		'./.11ty-vite/**',
 		'./node_modules/**',
+		'./.unlighthouse/**',
 	],
+	rules: {
+		'selector-not-notation': 'simple',
+	},
 };
