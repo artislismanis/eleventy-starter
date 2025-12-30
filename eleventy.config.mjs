@@ -4,26 +4,24 @@ import EleventyPluginNavigation from '@11ty/eleventy-navigation';
 import EleventyPluginRss from '@11ty/eleventy-plugin-rss';
 import EleventyPluginSyntaxhighlight from '@11ty/eleventy-plugin-syntaxhighlight';
 import EleventyVitePlugin from '@11ty/eleventy-plugin-vite';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import filters from './utils/filters.mjs';
-import transforms from './utils/transforms.mjs';
-import shortcodes from './utils/shortcodes.mjs';
-import {
-	generatePageStyles,
-	getDynamicEntries,
-} from './utils/generate-page-styles.mjs';
-import { generateCriticalCSS } from './utils/generate-critical.mjs';
+// Import from theme (will become npm package later)
+import filters from './theme/lib/filters.mjs';
+import transforms from './theme/lib/transforms.mjs';
+import shortcodes from './theme/lib/shortcodes.mjs';
+
+// Import page bundle discovery
+import { getPageBundleEntries } from './utils/get-page-bundles.mjs';
+
+// Import build utilities (keep only the ones we use)
 import { purgeCSSFiles } from './utils/purge-css.mjs';
-import { removeEmptyCss } from './utils/remove-empty-css.mjs';
+import { generateCriticalCSS } from './utils/generate-critical.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default function (eleventyConfig) {
-	// Build hooks
-	// Before build: Generate page-specific SCSS and JS entry points
-	eleventyConfig.on('eleventy.before', async () => {
-		console.log('Generating page styles...\n');
-		await generatePageStyles();
-	});
-
 	// Plugins
 	eleventyConfig.addPlugin(EleventyPluginNavigation);
 	eleventyConfig.addPlugin(EleventyPluginRss);
@@ -52,9 +50,13 @@ export default function (eleventyConfig) {
 					name: 'css-post-build',
 					apply: 'build',
 					async closeBundle() {
+						// Always run PurgeCSS
 						await purgeCSSFiles();
-						await removeEmptyCss();
-						await generateCriticalCSS();
+
+						// Critical CSS is opt-in via environment variable
+						if (process.env.GENERATE_CRITICAL_CSS === 'true') {
+							await generateCriticalCSS();
+						}
 					},
 				},
 			],
@@ -64,7 +66,8 @@ export default function (eleventyConfig) {
 				manifest: true,
 
 				rollupOptions: {
-					input: getDynamicEntries(),
+					// Auto-discover bundles (main + any page bundles)
+					input: getPageBundleEntries(),
 					output: {
 						entryFileNames: 'assets/js/[name].[hash].js',
 						chunkFileNames: 'assets/js/[name].[hash].js',
@@ -89,14 +92,20 @@ export default function (eleventyConfig) {
 				preprocessorOptions: {
 					scss: {
 						api: 'modern-compiler',
+						// Allow imports from theme and site assets
+						includePaths: [
+							path.resolve(__dirname, 'theme/styles'),
+							path.resolve(__dirname, 'src/assets/styles'),
+						],
 					},
 				},
 			},
 		},
 	});
 
-	// Watch source folder
+	// Watch source folders
 	eleventyConfig.addWatchTarget('./src/**/*.*');
+	eleventyConfig.addWatchTarget('./theme/**/*.*');
 	eleventyConfig.addWatchTarget('./utils/**/*.*');
 	eleventyConfig.addWatchTarget('./*.*');
 
@@ -137,9 +146,10 @@ export default function (eleventyConfig) {
 	});
 	eleventyConfig.setLibrary('md', markdownLibrary);
 
-	// Layouts
+	// Layouts (from theme)
 	eleventyConfig.addLayoutAlias('base', 'base.njk');
 	eleventyConfig.addLayoutAlias('post', 'post.njk');
+	eleventyConfig.addLayoutAlias('home', 'home.njk');
 
 	// File passthrough config
 	eleventyConfig.setServerPassthroughCopyBehavior('copy');
@@ -155,8 +165,8 @@ export default function (eleventyConfig) {
 		dir: {
 			input: 'src/pages',
 			output: '_site',
-			includes: '../_includes',
-			layouts: '../_includes',
+			includes: '../../theme/layouts', // From theme
+			layouts: '../../theme/layouts', // From theme
 			data: '../_data',
 		},
 	};
