@@ -148,11 +148,7 @@ export default function (eleventyConfig) {
 				emptyOutDir: false,
 				rollupOptions: {
 					// Entry points: main + all discovered features
-					input: getFeatureEntries(
-						__dirname,
-						themeMetadata.name,
-						themeMetadata,
-					),
+					input: getFeatureEntries(__dirname, themeMetadata),
 					output: {
 						entryFileNames: (chunkInfo) => {
 							if (chunkInfo.name === 'main') {
