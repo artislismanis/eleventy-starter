@@ -1,38 +1,122 @@
-import markdownIt from 'markdown-it';
-import markdownItAnchor from 'markdown-it-anchor';
-import EleventyPluginNavigation from '@11ty/eleventy-navigation';
-import EleventyPluginRss from '@11ty/eleventy-plugin-rss';
-import EleventyPluginSyntaxhighlight from '@11ty/eleventy-plugin-syntaxhighlight';
-import EleventyVitePlugin from '@11ty/eleventy-plugin-vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Import from theme (will become npm package later)
-import filters from './theme/lib/filters.mjs';
-import transforms from './theme/lib/transforms.mjs';
-import shortcodes from './theme/lib/shortcodes.mjs';
+import 'dotenv/config'; // Load environment variables from .env
+import markdownIt from 'markdown-it';
+import markdownItAnchor from 'markdown-it-anchor';
+import { HtmlBasePlugin, InputPathToUrlTransformPlugin } from '@11ty/eleventy';
+import EleventyPluginNavigation from '@11ty/eleventy-navigation';
+import { feedPlugin } from '@11ty/eleventy-plugin-rss';
+import EleventyPluginSyntaxhighlight from '@11ty/eleventy-plugin-syntaxhighlight';
+import EleventyVitePlugin from '@11ty/eleventy-plugin-vite';
+import { eleventyImageTransformPlugin } from '@11ty/eleventy-img';
+// Theme v3 imports - monorepo packages
+import {
+	plugin as baseBlogTheme,
+	metadata as themeMetadata,
+} from '@eleventy-themes/base-blog';
+import {
+	createThemeViteConfig,
+	getFeatureEntries,
+} from '@eleventy-themes/vite';
+import { generateDirConfig } from '@eleventy-themes/core';
 
-// Import page bundle discovery
-import { getPageBundleEntries } from './utils/get-page-bundles.mjs';
-
-// Import build utilities (keep only the ones we use)
-import { purgeCSSFiles } from './utils/purge-css.mjs';
-import { generateCriticalCSS } from './utils/generate-critical.mjs';
+// User overrides
+import userFilters from './overrides/lib/filters.mjs';
+import userShortcodes from './overrides/lib/shortcodes.mjs';
+// Site metadata
+import siteData from './content/_data/site.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default function (eleventyConfig) {
+	// Draft preprocessor: exclude draft posts in production builds
+	// See also: content/_data/eleventyDataSchema.js for draft field validation
+	eleventyConfig.addPreprocessor('drafts', '*', (data) => {
+		if (data.draft) {
+			data.title = `${data.title} (draft)`;
+		}
+
+		// Exclude drafts from production builds
+		if (data.draft && process.env.ELEVENTY_RUN_MODE === 'build') {
+			return false;
+		}
+	});
+
+	// Initialize theme (v3 API)
+	eleventyConfig.addPlugin(baseBlogTheme, {
+		projectRoot: __dirname,
+	});
+
+	// Add user filters and shortcodes
+	Object.keys(userFilters).forEach((name) => {
+		eleventyConfig.addFilter(name, userFilters[name]);
+	});
+	Object.keys(userShortcodes).forEach((name) => {
+		eleventyConfig.addShortcode(name, userShortcodes[name]);
+	});
+
 	// Plugins
 	eleventyConfig.addPlugin(EleventyPluginNavigation);
-	eleventyConfig.addPlugin(EleventyPluginRss);
 	eleventyConfig.addPlugin(EleventyPluginSyntaxhighlight);
-	eleventyConfig.addPlugin(EleventyVitePlugin, {
-		tempFolderName: '.11ty-vite', // Default name of the temp folder
+	eleventyConfig.addPlugin(HtmlBasePlugin);
+	eleventyConfig.addPlugin(InputPathToUrlTransformPlugin);
 
-		// Vite options (equal to vite.config.js inside project root)
-		viteOptions: {
+	// RSS/Atom feed: https://www.11ty.dev/docs/plugins/rss/
+	eleventyConfig.addPlugin(feedPlugin, {
+		type: 'atom', // or "rss", "json"
+		outputPath: '/feed.xml',
+		stylesheet: 'feed/pretty-atom-feed.xsl',
+		collection: {
+			name: 'posts',
+			limit: 10,
+		},
+		metadata: {
+			language: siteData.language,
+			title: siteData.title,
+			subtitle: siteData.description,
+			base: siteData.url,
+			author: {
+				name: siteData.author.name,
+				email: siteData.author.email,
+			},
+		},
+	});
+
+	// Image optimization - https://www.11ty.dev/docs/plugins/image/#eleventy-transform
+	eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+		formats: ['avif', 'webp', 'auto'],
+		// widths: ['auto'], // Uncomment to generate multiple widths
+		failOnError: false,
+		htmlOptions: {
+			imgAttributes: {
+				loading: 'lazy',
+				decoding: 'async',
+			},
+		},
+		sharpOptions: {
+			animated: true,
+		},
+	});
+
+	// Vite integrations with theme optimizations
+	eleventyConfig.addPlugin(EleventyVitePlugin, {
+		tempFolderName: '.11ty-vite',
+		viteOptions: createThemeViteConfig(themeMetadata, {
+			projectRoot: __dirname,
+			optimizations: {
+				purgeCSS: false,
+				criticalCSS: false,
+				minifyHTML: false,
+				validateLinks: false,
+				preserveNonHtml: true,
+			},
+			dirs: {
+				temp: '.11ty-vite',
+				output: '_site',
+			},
+			assetsInclude: ['**/*.xml', '**/*.txt', '**/*.xsl'],
 			publicDir: 'public',
-			clearScreen: false,
 			server: {
 				mode: 'development',
 				middlewareMode: true,
@@ -44,34 +128,47 @@ export default function (eleventyConfig) {
 				hmr: { overlay: true },
 			},
 			appType: 'custom',
-
-			plugins: [
-				{
-					name: 'css-post-build',
-					apply: 'build',
-					async closeBundle() {
-						// Always run PurgeCSS
-						await purgeCSSFiles();
-
-						// Critical CSS is opt-in via environment variable
-						if (process.env.GENERATE_CRITICAL_CSS === 'true') {
-							await generateCriticalCSS();
-						}
-					},
+			resolve: {
+				alias: {
+					// Add alias for the HTML script references
+					'/assets/scripts/main.js': path.resolve(
+						__dirname,
+						'overrides/scripts/main.js',
+					),
+					'/assets/scripts/features': path.resolve(
+						__dirname,
+						'overrides/features',
+					),
 				},
-			],
+			},
 			build: {
 				mode: 'production',
 				sourcemap: 'hidden',
 				manifest: true,
-
+				emptyOutDir: false,
 				rollupOptions: {
-					// Auto-discover bundles (main + any page bundles)
-					input: getPageBundleEntries(),
+					// Entry points: main + all discovered features
+					input: getFeatureEntries(
+						__dirname,
+						themeMetadata.name,
+						themeMetadata,
+					),
 					output: {
-						entryFileNames: 'assets/js/[name].[hash].js',
-						chunkFileNames: 'assets/js/[name].[hash].js',
+						entryFileNames: (chunkInfo) => {
+							if (chunkInfo.name === 'main') {
+								return 'assets/scripts/[name].[hash].js';
+							}
+							// Entry names like /code-highlighting.js -> code-highlighting.[hash].js
+							const cleanName = chunkInfo.name
+								.replace(/^\//, '')
+								.replace(/\.js$/, '');
+							return `assets/scripts/${cleanName}.[hash].js`;
+						},
+						chunkFileNames: 'assets/scripts/chunks/[name].[hash].js',
 						assetFileNames: ({ name }) => {
+							if (/\.(xml|txt|xsl)$/.test(name ?? '')) {
+								return '[name][extname]';
+							}
 							if (/\.(css)$/.test(name ?? '')) {
 								return 'assets/css/[name].[hash][extname]';
 							}
@@ -87,46 +184,19 @@ export default function (eleventyConfig) {
 				},
 				cssCodeSplit: true,
 			},
-			css: {
-				devSourcemap: true,
-				preprocessorOptions: {
-					scss: {
-						api: 'modern-compiler',
-						// Allow imports from theme and site assets
-						includePaths: [
-							path.resolve(__dirname, 'theme/styles'),
-							path.resolve(__dirname, 'src/assets/styles'),
-						],
-					},
-				},
-			},
-		},
+		}),
 	});
 
 	// Watch source folders
-	eleventyConfig.addWatchTarget('./src/**/*.*');
-	eleventyConfig.addWatchTarget('./theme/**/*.*');
-	eleventyConfig.addWatchTarget('./utils/**/*.*');
-	eleventyConfig.addWatchTarget('./*.*');
+	eleventyConfig.addWatchTarget('./content/**/*.*');
+	eleventyConfig.addWatchTarget('./overrides/**/*.*');
+	eleventyConfig.addWatchTarget('./public/**/*.*');
+	// Watch root-level config files (eleventy.config.mjs, postcss.config.mjs, etc.)
+	eleventyConfig.addWatchTarget('./*.{mjs,js}');
 
 	eleventyConfig.setChokidarConfig({
 		usePolling: true,
 		interval: 100,
-	});
-
-	// Filters
-	Object.keys(filters).forEach((filterName) => {
-		eleventyConfig.addFilter(filterName, filters[filterName]);
-	});
-
-	// Transforms
-	Object.keys(transforms).forEach((transformName) => {
-		eleventyConfig.addTransform(transformName, transforms[transformName]);
-	});
-
-	// Shortcodes
-	Object.keys(shortcodes).forEach((shortcodeName) => {
-		eleventyConfig.addShortcode(shortcodeName, shortcodes[shortcodeName]);
 	});
 
 	// Customize Markdown library and settings:
@@ -138,7 +208,7 @@ export default function (eleventyConfig) {
 		level: 2,
 		permalink: markdownItAnchor.permalink.linkAfterHeader({
 			style: 'visually-hidden',
-			assistiveText: (title) => `Permalink to “${title}”`,
+			assistiveText: (title) => `Permalink to "${title}"`,
 			visuallyHiddenClass: 'visually-hidden',
 			wrapper: ['<div class="heading-wrapper">', '</div>'],
 		}),
@@ -146,28 +216,16 @@ export default function (eleventyConfig) {
 	});
 	eleventyConfig.setLibrary('md', markdownLibrary);
 
-	// Layouts (from theme)
-	eleventyConfig.addLayoutAlias('base', 'base.njk');
-	eleventyConfig.addLayoutAlias('post', 'post.njk');
-	eleventyConfig.addLayoutAlias('home', 'home.njk');
-
-	// File passthrough config
+	// Additional passthrough copy for content/feed
 	eleventyConfig.setServerPassthroughCopyBehavior('copy');
-	eleventyConfig.addPassthroughCopy({ './src/assets/': '/assets/' });
-	eleventyConfig.addPassthroughCopy({ './src/feed/': '/feed/' });
-	eleventyConfig.addPassthroughCopy({ './public/': '/' });
+	eleventyConfig.addPassthroughCopy('./content/feed/pretty-atom-feed.xsl');
 
 	return {
 		templateFormats: ['md', 'njk'],
 		htmlTemplateEngine: 'njk',
 		markdownTemplateEngine: 'njk',
 		passthroughFileCopy: true,
-		dir: {
-			input: 'src/pages',
-			output: '_site',
-			includes: '../../theme/layouts', // From theme
-			layouts: '../../theme/layouts', // From theme
-			data: '../_data',
-		},
+		// Use theme's dir configuration with cascade support
+		...generateDirConfig(themeMetadata, { projectRoot: __dirname }),
 	};
 }
