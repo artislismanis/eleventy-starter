@@ -1,7 +1,7 @@
 // markdownlint-cli2 config
 // https://github.com/DavidAnson/markdownlint-cli2?tab=readme-ov-file#markdownlint-cli2jsonc
 export default {
-	globs: ['./src/**/*.{md,markdown}'],
+	globs: ['./content/**/*.{md,markdown}', './docs/**/*.md', './*.md'],
 	ignores: [
 		'./.husky/**',
 		'./_site/**',

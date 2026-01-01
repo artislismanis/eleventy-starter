@@ -44,7 +44,7 @@ const projectRoot = join(__dirname, '..');
 const config = {
 	bucket: process.env.S3_BUCKET,
 	region: process.env.AWS_REGION || 'eu-west-2',
-	siteDir: process.env.SITE_DIR || '_site',
+	siteDir: '_site',
 	projectRoot,
 	dryRun: process.argv.includes('--dry-run'),
 	force: process.argv.includes('--force'),

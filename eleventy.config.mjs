@@ -14,12 +14,12 @@ import { eleventyImageTransformPlugin } from '@11ty/eleventy-img';
 import {
 	plugin as baseBlogTheme,
 	metadata as themeMetadata,
-} from '@eleventy-themes/base-blog';
+} from '@eleventy-plugin-themer/theme-base';
 import {
 	createThemeViteConfig,
 	getFeatureEntries,
-} from '@eleventy-themes/vite';
-import { generateDirConfig } from '@eleventy-themes/core';
+} from '@eleventy-plugin-themer/build-vite';
+import { generateDirConfig } from '@eleventy-plugin-themer/core';
 
 // User overrides
 import userFilters from './overrides/lib/filters.mjs';
@@ -105,10 +105,10 @@ export default function (eleventyConfig) {
 		viteOptions: createThemeViteConfig(themeMetadata, {
 			projectRoot: __dirname,
 			optimizations: {
-				purgeCSS: false,
-				criticalCSS: false,
-				minifyHTML: false,
-				validateLinks: false,
+				purgeCSS: true,
+				criticalCSS: true,
+				minifyHTML: true,
+				validateLinks: true,
 				preserveNonHtml: true,
 			},
 			dirs: {

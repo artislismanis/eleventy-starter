@@ -10,14 +10,3 @@ _site/
 
 # Ignore unlighthouse reports
 .unlighthouse
-
-# Auto-generated files (can be recreated anytime)
-src/assets/styles/pages/_generated/
-src/assets/styles/pages/*.scss
-src/assets/scripts/pages/_generated/
-
-# Keep manual override files
-!src/assets/styles/pages/_custom/
-!src/assets/styles/pages/_custom/*.custom.scss
-!src/assets/scripts/pages/_custom/
-!src/assets/scripts/pages/_custom/*.custom.js

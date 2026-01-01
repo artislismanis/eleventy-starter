@@ -3,8 +3,8 @@ import { fileURLToPath } from 'url';
 
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
-import { getAvailableFeatures } from '@eleventy-themes/core';
-import { metadata as themeMetadata } from '@eleventy-themes/base-blog';
+import { getAvailableFeatures } from '@eleventy-plugin-themer/core';
+import { metadata as themeMetadata } from '@eleventy-plugin-themer/theme-base';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '../..');

@@ -24,5 +24,11 @@ export default {
 				trailingComma: 'none',
 			},
 		},
+		{
+			files: ['**/*.md'],
+			options: {
+				useTabs: false,
+			},
+		},
 	],
 };
