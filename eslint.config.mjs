@@ -41,7 +41,19 @@ export default [
 
 	// Override for config files
 	{
-		files: ['*.config.mjs', '.markdownlint-cli2.mjs'],
+		files: ['**/*.config.mjs', '.markdownlint-cli2.mjs'],
+		languageOptions: {
+			globals: { ...globals.node },
+		},
+		rules: {
+			// vitest/config is a subpath export not resolvable by eslint-plugin-import
+			'import/no-unresolved': ['error', { ignore: ['^vitest/'] }],
+		},
+	},
+
+	// Tests run under Node + vitest
+	{
+		files: ['__tests__/**/*.{js,mjs}'],
 		languageOptions: {
 			globals: { ...globals.node },
 		},

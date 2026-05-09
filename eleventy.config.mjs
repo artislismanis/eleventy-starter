@@ -10,9 +10,9 @@ import { eleventyPluginThemer } from '@eleventy-plugin-themer/core';
 import { eleventyPluginThemerVite } from '@eleventy-plugin-themer/build-vite';
 
 import siteData from './content/_data/site.js';
+import { THEME_NAME } from './theme.config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const THEME_NAME = '@eleventy-plugin-themer/theme-base';
 
 export default async function (eleventyConfig) {
 	// Draft preprocessor: exclude draft posts in production builds

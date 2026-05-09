@@ -1,210 +1,114 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code and other AI agents working in this repository. For framework architecture (cascade, override resolution, security model, etc.), read the `@eleventy-plugin-themer` plugin docs — this file covers integration only.
 
-## Project Overview
+## Project shape
 
-This is an Eleventy (11ty) static site generator project using the `@eleventy-plugin-themer` framework. The framework provides:
+This is an Eleventy site that consumes the `@eleventy-plugin-themer` framework as a black box. The plugin owns theming, cascade, and build integration; this repo owns content, overrides, deployment, and project-level tooling.
 
-- **Cascade override system** - User customizations always win over theme defaults
-- **Feature bundles** - Per-page JavaScript/CSS loaded only when needed
-- **Dark/light mode** - Configurable theme toggle with system preference support
-- **Navigation** - Uses `@11ty/eleventy-navigation` for all menus
+Pieces:
 
-## Common Commands
+- `content/` — site content (pages, posts, `_data/`)
+- `overrides/` — theme overrides (`layouts/`, `styles/`, `scripts/`, `features/`, `lib/`)
+- `public/` — static passthrough assets
+- `eleventy.config.mjs` — the integration: registers `eleventyPluginThemer` (core) + `eleventyPluginThemerVite` (build adapter)
+- `scripts/deploy.mjs` — AWS S3 + Amplify deployment
 
-### Development
+For how the override cascade works under the hood, see the plugin's `CLAUDE.md`.
 
-```bash
-npm run dev              # Start development server with hot reload
-npm run build            # Production build (clean + eleventy)
-npm run serve            # Serve built site locally
-```
-
-### Linting & Formatting
+## Common commands
 
 ```bash
-npm run lint             # Run all linters (format, lint:js, lint:css, lint:md)
-npm run format           # Format all files with Prettier
-npm run lint:js          # ESLint
-npm run lint:css         # Stylelint for SCSS files
-npm run lint:md          # Markdownlint
+npm run dev        # dev server with HMR
+npm run build      # clean + production build
+npm run serve      # serve _site/
+
+npm run lint       # format + js + css + md
+npm run lint:md    # markdownlint only (content authoring)
+npm run lint:md:fix
+
+npm run deploy        # deploy to AWS (main only)
+npm run deploy:dry    # show what would change
+npm run deploy:force  # deploy from any branch
 ```
 
-### Deployment
+## Integration patterns
 
-```bash
-npm run deploy           # Deploy to S3 + trigger Amplify (main branch only)
-npm run deploy:dry       # Dry-run deployment (shows changes without executing)
-npm run deploy:force     # Force deploy from any branch
-```
+### Theme configuration
 
-## Architecture
+User-facing theme config lives in `content/_data/theme.js`. The plugin validates this against the theme's declared schema — unknown top-level keys throw. Inner shapes are unconstrained, so themes can evolve their config without breaking the starter.
 
-### Theme Framework
+### Adding a page or post
 
-This project uses the `@eleventy-plugin-themer` framework consisting of:
+1. Create a markdown or `.njk` file under `content/` (or `content/posts/` for blog posts).
+2. Front-matter sets layout + navigation + features. Example:
 
-- `@eleventy-plugin-themer/core` - Cascade system, template engine, validation
-- `@eleventy-plugin-themer/build-vite` - Vite integration and optimizations
-- `@eleventy-plugin-themer/theme-base` - Base blog theme with layouts and styles
+   ```yaml
+   ---
+   title: My Post
+   layout: layouts/post.njk
+   features:
+     - code-highlighting
+   eleventyNavigation:
+     key: Posts
+     order: 2
+   ---
+   ```
 
-### Directory Structure
+3. Feature names in the `features` list are validated against features actually available in the cascade (theme + overrides). Schema lives in `content/_data/eleventyDataSchema.js` and pulls from the plugin.
 
-```text
-eleventy-starter/
-├── content/                    # Site content
-│   ├── posts/                 # Blog posts
-│   ├── index.njk              # Homepage
-│   ├── blog.njk               # Blog index
-│   ├── privacy.njk            # Footer navigation page
-│   └── _data/                 # Site data
-│       ├── site.js            # Site metadata
-│       ├── theme.js           # Theme configuration overrides
-│       └── eleventyDataSchema.js
-├── overrides/                  # Site-specific customizations
-│   ├── layouts/               # Override theme layouts
-│   ├── features/              # Custom features
-│   ├── scripts/
-│   │   └── main.js           # Entry point
-│   ├── styles/                # Custom styles
-│   └── lib/                   # Custom filters/shortcodes
-├── public/                     # Static files
-├── eleventy.config.mjs         # Eleventy configuration
-└── package.json
-```
+### Overriding a layout, style, script, or feature
 
-### Cascade Override System
+Place the file at the matching path under `overrides/`. The plugin's cascade picks the override automatically. No registration needed.
 
-User customizations always win over theme defaults:
+| Override           | Path                                                        |
+| ------------------ | ----------------------------------------------------------- |
+| Layout             | `overrides/layouts/<name>.njk`                              |
+| Style              | `overrides/styles/<name>.scss`                              |
+| Feature            | `overrides/features/<name>/index.js` (or `index.auto.js`)   |
+| Filter / shortcode | `overrides/lib/filters.mjs`, `overrides/lib/shortcodes.mjs` |
 
-1. **Layouts**: `overrides/layouts/base.njk` overrides theme's `base.njk`
-2. **Features**: `overrides/features/code-highlighting/` overrides theme feature
-3. **Styles**: Import theme styles and override CSS custom properties
-4. **Filters/Shortcodes**: Define in `overrides/lib/` to override theme helpers
+### Build optimizations
 
-### Theme Configuration
+Configured in `eleventy.config.mjs` under `optimizations`:
 
-Configure the theme in `content/_data/theme.js`:
-
-```javascript
-export default {
-  // Dark/light mode toggle
-  themeToggle: {
-    defaultTheme: 'auto', // 'auto', 'light', or 'dark'
-    showToggle: true, // Show toggle button in header
-  },
-
-  // Override colors
-  colors: {
-    light: { primary: '#ff6b6b' },
-    dark: { primary: '#4ecdc4' },
-  },
-
-  // Footer configuration
-  footer: {
-    copyright: '© {year} My Site',
-    showPoweredBy: true,
+```js
+const options = {
+  optimizations: {
+    purgeCSS: true,
+    criticalCSS: true,
+    minifyHTML: true,
+    validateLinks: true,
+    preserveNonHtml: { extensions: ['xml', 'txt', 'xsl'] },
   },
 };
 ```
 
-### Navigation
+PurgeCSS safelist patterns merge from three layers — see `README.md` for the merge rules.
 
-Uses `@11ty/eleventy-navigation` plugin for all navigation:
+### Integration sanity check
 
-**Header navigation** - Add to page front matter:
+`eleventyPluginThemerVite` emits `[themer/build-vite x.y.z] integration check: OK` on startup. Warnings appear if Node, Vite, or `@11ty/eleventy-plugin-vite` versions are outside the plugin's declared peer ranges. Treat warnings as actionable — they usually predict a runtime break.
 
-```yaml
-eleventyNavigation:
-  key: About
-  order: 2
-```
+## Key files
 
-**Footer navigation** - Add with `parent: footer`:
+| File                                  | Purpose                                                    |
+| ------------------------------------- | ---------------------------------------------------------- |
+| `eleventy.config.mjs`                 | Plugin registration, optimizations, dirs                   |
+| `content/_data/site.js`               | Site metadata (title, url, etc.)                           |
+| `content/_data/theme.js`              | Theme overrides (validated against plugin schema)          |
+| `content/_data/eleventyDataSchema.js` | Front-matter validation (uses `featuresFrontMatterSchema`) |
+| `overrides/lib/filters.mjs`           | Project-specific Nunjucks filters                          |
+| `overrides/lib/shortcodes.mjs`        | Project-specific shortcodes                                |
 
-```yaml
-eleventyNavigation:
-  key: Privacy Policy
-  parent: footer
-  order: 1
-```
+## Conventions
 
-**Breadcrumbs** - Automatically rendered for pages with hierarchical navigation.
+- **Indentation: tabs (width 2).** `.editorconfig` and Prettier agree. Markdown is space-indented.
+- **Markdown linting** is wired through Husky pre-commit; relaxed rules (no MD013/MD033) for content-author ergonomics.
+- **Lightweight Vitest suite** at `__tests__/` covers build smoke, content front-matter schema validation, and output sanity. Run with `npm test`.
 
-### Features (Per-Page Bundles)
+## When in doubt
 
-Load JavaScript/CSS only on pages that need it:
-
-```yaml
----
-title: My Post
-features:
-  - code-highlighting
----
-```
-
-Create custom features in `overrides/features/{name}/index.js`.
-
-### Shortcodes
-
-Available paired shortcodes for layouts:
-
-**Hero Section:**
-
-```nunjucks
-{% hero title="Welcome", subtitle="Build great sites" %}
-  {% heroButton url="/start", variant="primary" %}Get Started{% endheroButton %}
-{% endhero %}
-```
-
-**Content Grid with Boxes:**
-
-```nunjucks
-{% contentGrid cols=3 %}
-  {% box title="Feature 1", link="/about" %}Description{% endbox %}
-  {% box title="Feature 2" %}Another box{% endbox %}
-{% endcontentGrid %}
-```
-
-### Build Optimizations
-
-Production builds include:
-
-- **PurgeCSS** - Remove unused CSS
-- **Critical CSS** - Inline above-the-fold styles
-- **HTML Minification** - Compress output
-- **Link Validation** - Check for broken links
-
-Configure in `eleventy.config.mjs`:
-
-```text
-optimizations: {
-  purgeCSS: true,
-  criticalCSS: true,
-  minifyHTML: true,
-  validateLinks: true,
-}
-```
-
-## Key Files
-
-| File                           | Purpose                         |
-| ------------------------------ | ------------------------------- |
-| `eleventy.config.mjs`          | Eleventy and Vite configuration |
-| `content/_data/theme.js`       | Theme customization             |
-| `content/_data/site.js`        | Site metadata                   |
-| `overrides/scripts/main.js`    | JavaScript entry point          |
-| `overrides/lib/filters.mjs`    | Custom Nunjucks filters         |
-| `overrides/lib/shortcodes.mjs` | Custom shortcodes               |
-
-## Plugins
-
-- `@11ty/eleventy-navigation` - Navigation menus and breadcrumbs
-- `@11ty/eleventy-plugin-rss` - RSS/Atom feed generation
-- `@11ty/eleventy-plugin-syntaxhighlight` - Prism code highlighting
-- `@11ty/eleventy-plugin-vite` - Vite integration
-
-## Git Workflow
-
-Pre-commit hooks via Husky run lint-staged on changed files.
+- Plugin internals → read `@eleventy-plugin-themer/CLAUDE.md`
+- This repo's structure → read `README.md`
+- Don't reach into the plugin's internal modules. Only `@eleventy-plugin-themer/core`, `/build-vite`, and `/theme-base` (plus their documented subpaths) are stable surfaces.

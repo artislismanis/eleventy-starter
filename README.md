@@ -2,6 +2,8 @@
 
 A scaffolding for building static websites with [Eleventy](https://www.11ty.dev/) and the `@eleventy-plugin-themer` framework.
 
+The starter showcases integration patterns; the plugin is treated as a black box. For framework internals (cascade resolution, override discovery, security model), see the plugin's own `README.md` / `CLAUDE.md`.
+
 ## Getting Started
 
 ```bash

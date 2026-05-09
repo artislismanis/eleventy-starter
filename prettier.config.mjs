@@ -1,12 +1,7 @@
 // Prettier config
 // https://prettier.io/docs/configuration
+// Indentation (tabs, width 2) and end-of-line are inherited from .editorconfig.
 export default {
-	// Duplicating .editorconfig settings
-	// Should be read automatically by Prettier in most scenarios, but just in case
-	useTabs: true,
-	tabWidth: 2,
-	endOfLine: 'lf',
-	// Prettier specific settings
 	semi: true,
 	singleQuote: true,
 	trailingComma: 'all',
