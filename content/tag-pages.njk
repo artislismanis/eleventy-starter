@@ -20,9 +20,9 @@ const eleventyComputed = {
 };
 ---
 
-<h1>Tagged “{{ tag }}”</h1>
+<h1>Tagged {{ tag | formatTag }}</h1>
 
 {% set postslist = collections[ tag ] %}
-{% include "partials/postslist.njk" %}
+{% include "partials/content/postslist.njk" %}
 
 <p>See <a href="/tags/">all tags</a>.</p>

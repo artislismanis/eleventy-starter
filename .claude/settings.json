@@ -1,0 +1,18 @@
+{
+	"permissions": {
+		"allow": [
+			"Read(//home/data/devworkspace/eleventy-plugin-themer/**)",
+			"Read(//home/data/devworkspace/eleventy-plugin-themer/packages/themes/**)",
+			"Read(//home/data/devworkspace/eleventy-plugin-themer/packages/**)",
+			"Read(//home/data/devworkspace/eleventy-plugin-themer/packages/core/**)",
+			"Bash(head -c 2000 /home/data/devworkspace/eleventy-starter/_site/assets/css/*.css)",
+			"Bash(npx vitest run --reporter=verbose)",
+			"Bash(npx vitest run)"
+		],
+		"additionalDirectories": [
+			"/home/data/devworkspace/eleventy-plugin-themer/packages/themes/base",
+			"/home/data/devworkspace/eleventy-plugin-themer/packages/core",
+			"/home/data/devworkspace/eleventy-plugin-themer/packages/build/vite"
+		]
+	}
+}

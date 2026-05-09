@@ -15,7 +15,7 @@ const numberOfLatestPostsToShow = 3;
 
 {% set postslist = collections.posts | head(-1 * numberOfLatestPostsToShow) %}
 {% set postslistCounter = postsCount %}
-{% include "partials/postslist.njk" %}
+{% include "partials/content/postslist.njk" %}
 
 {% set morePosts = postsCount - numberOfLatestPostsToShow %}
 {% if morePosts > 0 %}

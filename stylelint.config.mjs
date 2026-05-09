@@ -17,5 +17,8 @@ export default {
 	],
 	rules: {
 		'selector-not-notation': 'simple',
+		'selector-class-pattern': null, // BEM naming
+		'no-descending-specificity': null, // Impractical for component styles
+		'scss/comment-no-empty': null, // Allow empty comments for visual spacing
 	},
 };

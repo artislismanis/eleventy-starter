@@ -1,0 +1,179 @@
+---
+title: Layout Shortcodes Demo
+layout: base.njk
+eleventyNavigation:
+  key: Shortcodes Demo
+  order: 5
+description: Demonstration of the layout grid, box, and hero paired shortcodes
+---
+
+<h1>{{ title }}</h1>
+
+<p>
+	This page demonstrates the paired shortcodes available for creating layouts
+	and content boxes with action buttons.
+</p>
+
+<h2>Hero Section</h2>
+
+<p>
+	The <code>hero</code> shortcode creates a full-width hero section with
+	optional background image, title, subtitle, and action buttons.
+</p>
+
+{%
+	hero
+	title="Welcome to Our Platform",
+	subtitle="Build beautiful websites with ease using our modern theme framework",
+	align="center",
+	height="350px"
+%}
+	{% heroButton url="/about", variant="primary" %}Get Started{% endheroButton %}
+	{% heroButton url="/blog", variant="secondary" %}Learn More{% endheroButton %}
+{% endhero %}
+
+<h3>Hero Usage</h3>
+
+<pre><code class="language-nunjucks">{% raw %}{%
+	hero
+	title="Welcome to Our Platform",
+	subtitle="Build beautiful websites with ease",
+	align="center",
+	height="350px"
+%}
+	{% heroButton url="/about", variant="primary" %}Get Started{% endheroButton %}
+	{% heroButton url="/blog", variant="secondary" %}Learn More{% endheroButton %}
+{% endhero %}{% endraw %}</code></pre>
+
+<h3>Hero Parameters</h3>
+
+<ul>
+	<li><code>title</code> - Main heading text</li>
+	<li><code>subtitle</code> - Secondary text below the title</li>
+	<li><code>background</code> - URL to background image</li>
+	<li><code>backgroundColor</code> - Fallback background color</li>
+	<li>
+		<code>align</code> - Text alignment: "left", "center", or "right" (default:
+		"center")
+	</li>
+	<li><code>height</code> - Minimum height (default: "auto")</li>
+	<li>
+		<code>overlay</code> - Show dark overlay on background image (default: true)
+	</li>
+</ul>
+
+<hr />
+
+<h2>Content Grid with Boxes</h2>
+
+<p>
+	The <code>contentGrid</code> shortcode creates a responsive grid layout, while
+	<code>box</code> creates individual content boxes with optional action links.
+</p>
+
+{% contentGrid cols=3, gap="1.5rem" %}
+	{% box title="Fast Performance", link="/about", linkText="Learn More" %}
+		<p>
+			Built with modern tools and optimized for speed. Your site loads
+			instantly.
+		</p>
+	{% endbox %}
+	{% box title="Easy Customization", link="/about", linkText="Explore" %}
+		<p>
+			Override any theme component with the cascade system. Your code always
+			wins.
+		</p>
+	{% endbox %}
+	{% box title="Feature Bundles", link="/blog", linkText="See Examples" %}
+		<p>
+			Load JavaScript features only on pages that need them with opt-in bundles.
+		</p>
+	{% endbox %}
+{% endcontentGrid %}
+
+<h3>Grid Usage</h3>
+
+<pre><code class="language-nunjucks">{% raw %}{% contentGrid cols=3, gap="1.5rem" %}
+	{% box title="Fast Performance", link="/about", linkText="Learn More" %}
+		<p>Built with modern tools and optimized for speed.</p>
+	{% endbox %}
+	{% box title="Easy Customization", link="/about", linkText="Explore" %}
+		<p>Override any theme component with the cascade system.</p>
+	{% endbox %}
+	{% box title="Feature Bundles", link="/blog", linkText="See Examples" %}
+		<p>Load JavaScript features only on pages that need them.</p>
+	{% endbox %}
+{% endcontentGrid %}{% endraw %}</code></pre>
+
+<h3>Grid Parameters</h3>
+
+<ul>
+	<li>
+		<code>cols</code> - Number of columns (default: 3). Responsive: 3 cols
+		&rarr; 2 cols (768px) &rarr; 1 col (480px)
+	</li>
+	<li><code>gap</code> - Gap between items (default: "1rem")</li>
+	<li><code>className</code> - Additional CSS class for the grid container</li>
+</ul>
+
+<h3>Box Parameters</h3>
+
+<ul>
+	<li><code>title</code> - Box heading</li>
+	<li><code>link</code> - URL for the call-to-action link</li>
+	<li><code>linkText</code> - Text for the link (default: "Learn More")</li>
+	<li><code>className</code> - Additional CSS class for the box</li>
+</ul>
+
+<hr />
+
+<h2>Two-Column Grid Example</h2>
+
+{% contentGrid cols=2, gap="2rem" %}
+	{% box title="Development" %}
+		<p>
+			Run <code>npm run dev</code> to start the development server with hot
+			reload.
+		</p>
+		<p>Changes to content, templates, and styles trigger instant updates.</p>
+	{% endbox %}
+	{% box title="Production Build" %}
+		<p>Run <code>npm run build</code> for optimized production output.</p>
+		<p>Includes CSS purging, critical CSS extraction, and HTML minification.</p>
+	{% endbox %}
+{% endcontentGrid %}
+
+<hr />
+
+<h2>Left-Aligned Hero</h2>
+
+{%
+	hero
+	title="Another Hero Example",
+	subtitle="This hero section is left-aligned with different styling",
+	align="left",
+	height="250px"
+%}
+	{% heroButton url="#", variant="primary" %}Primary Action{% endheroButton %}
+{% endhero %}
+
+<hr />
+
+<h2>Boxes Without Links</h2>
+
+<p>Boxes can also be used without action buttons for simple content cards:</p>
+
+{% contentGrid cols=4, gap="1rem" %}
+	{% box title="Step 1" %}
+		<p>Install the theme package</p>
+	{% endbox %}
+	{% box title="Step 2" %}
+		<p>Configure your site</p>
+	{% endbox %}
+	{% box title="Step 3" %}
+		<p>Add your content</p>
+	{% endbox %}
+	{% box title="Step 4" %}
+		<p>Deploy!</p>
+	{% endbox %}
+{% endcontentGrid %}
