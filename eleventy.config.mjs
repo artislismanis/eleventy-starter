@@ -10,7 +10,7 @@ import { eleventyPluginThemer } from '@eleventy-plugin-themer/core';
 import { eleventyPluginThemerVite } from '@eleventy-plugin-themer/build-vite';
 
 import siteData from './content/_data/site.js';
-import { THEME_NAME } from './theme.config.mjs';
+import { THEME_NAME, INPUT_DIR, OUTPUT_DIR } from './theme.config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,8 +39,8 @@ export default async function (eleventyConfig) {
 	const { dir: themeDir } = await eleventyPluginThemer(eleventyConfig, {
 		theme: THEME_NAME,
 		projectRoot: __dirname,
-		input: 'content',
-		output: '_site',
+		input: INPUT_DIR,
+		output: OUTPUT_DIR,
 	});
 
 	eleventyConfig.addPlugin(EleventyPluginNavigation);
@@ -89,14 +89,14 @@ export default async function (eleventyConfig) {
 
 	// Override directories (overrides/**/*.*) are watched by the themer plugin.
 	// Only register starter-specific watches here.
-	eleventyConfig.addWatchTarget('./content/**/*.*');
+	eleventyConfig.addWatchTarget(`./${INPUT_DIR}/**/*.*`);
 	eleventyConfig.addWatchTarget('./public/**/*.*');
 	eleventyConfig.addWatchTarget('./*.{mjs,js}');
 
 	eleventyConfig.setChokidarConfig({ usePolling: true, interval: 100 });
 
 	eleventyConfig.setServerPassthroughCopyBehavior('copy');
-	eleventyConfig.addPassthroughCopy('./content/feed/pretty-atom-feed.xsl');
+	eleventyConfig.addPassthroughCopy(`./${INPUT_DIR}/feed/pretty-atom-feed.xsl`);
 
 	return {
 		dir: themeDir,
