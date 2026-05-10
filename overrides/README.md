@@ -2,6 +2,8 @@
 
 Theme-shaped customisations. Files placed here win over the theme's defaults via the framework's cascade. Empty directories are intentional scaffolding — drop a file in to override.
 
+Files prefixed with **Example** in the comments are illustrative starting points and safe to delete: `lib/filters.mjs`, `lib/shortcodes.mjs`, `features/example/`. They demonstrate the override mechanism without changing build output.
+
 | Directory   | Purpose                                                                                                |
 | ----------- | ------------------------------------------------------------------------------------------------------ |
 | `layouts/`  | Override theme layouts by filename (e.g. `layouts/post.njk` shadows the theme's).                      |

@@ -6,6 +6,8 @@ Guidance for Claude Code and other AI agents working in this repository. For fra
 
 This is an Eleventy site that consumes the `@eleventy-plugin-themer` framework as a black box. The plugin owns theming, cascade, and build integration; this repo owns content, overrides, deployment, and project-level tooling.
 
+**Repo boundary:** This repo and the plugin repo are independent. The only coupling is the published-package consumption. Dev-time configs (ESLint, Stylelint, Prettier, Vitest) are deliberately **not** shared — each repo owns its own tooling end-to-end. The two setups can borrow good patterns from each other and stay roughly aligned, but unifying them (e.g. by exporting "configs" from the plugin) is out of scope. Don't propose it.
+
 Pieces:
 
 - `content/` — site content (pages, posts, `_data/`)

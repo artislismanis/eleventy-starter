@@ -1,20 +1,20 @@
 /**
- * Custom Shortcodes
+ * Project shortcodes — registered after the theme's shortcodes, so any name
+ * collision wins from here.
  *
- * The active theme's shortcodes are auto-registered by the plugin BEFORE
- * this file. Entries returned here register afterwards with the same
- * `addShortcode` calls, so:
+ * Default export: an object whose keys become Nunjucks shortcode names. The
+ * plugin auto-discovers this file at `overrides/lib/shortcodes.{mjs,js}`.
  *
- *   - new keys add new shortcodes
- *   - keys matching a theme shortcode SHADOW the theme's by name
- *
- * The active theme's shortcode inventory lives in
- * `node_modules/<theme-package>/lib/shortcodes.mjs`.
- *
- * See `overrides/README.md` for the full override-cascade rules.
+ * The entry below is illustrative — keep, edit, or delete to taste.
  */
 
 export default {
-	// Add your custom shortcodes here, e.g.:
-	// year: () => String(new Date().getFullYear()),
+	/**
+	 * Current year, useful for copyright lines:
+	 *
+	 *   &copy; {% year %} {{ site.title }}
+	 */
+	year() {
+		return String(new Date().getFullYear());
+	},
 };

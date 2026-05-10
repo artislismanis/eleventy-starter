@@ -38,6 +38,18 @@ overrides/         # Theme overrides
 public/            # Static assets (copied as-is)
 ```
 
+## Linting & Formatting Configs
+
+ESLint, Stylelint, Prettier, markdownlint, Vitest, husky, and lint-staged configs in this repo are intentionally **independent** of the plugin repo's. The plugin treats consumer dev tooling as out of scope: only its runtime API is part of the public contract.
+
+Practical implications:
+
+- The configs here will visually overlap with the plugin's, and that's fine — don't try to share them via a `@eleventy-plugin-themer/configs` package.
+- When the plugin tightens a rule (e.g. an ESLint upgrade), it doesn't propagate here automatically. Bring changes over by hand if you want them.
+- Conversely, project-specific relaxations or stylistic preferences live here and never reach the plugin.
+
+If a rule starts feeling load-bearing across both repos, that's a signal to revisit — but the current default is "duplication is cheaper than coupling".
+
 ## Customizing PurgeCSS Safelist
 
 The production build runs PurgeCSS to remove unused CSS. The safelist (patterns preserved from purging) merges from three layers:

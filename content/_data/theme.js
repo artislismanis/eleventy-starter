@@ -9,12 +9,15 @@
  * build time, so a typo here fails fast with a helpful error pointing at the
  * exact key (and the list of valid keys for the active theme).
  *
+ * `defineThemeConfig` is an identity helper whose only purpose is to give
+ * the editor `ThemeUserConfig` auto-completion via JSDoc.
+ *
  * @see node_modules/@eleventy-plugin-themer/theme-base/theme.json
  *      for all the keys and shapes the active theme supports.
- *
- * @type {import('@eleventy-plugin-themer/core/types').ThemeUserConfig}
  */
-export default {
+import { defineThemeConfig } from '@eleventy-plugin-themer/core';
+
+export default defineThemeConfig({
 	// --- Theme toggle ---------------------------------------------------------
 	// Controls dark/light mode behaviour. `defaultTheme` is the initial mode
 	// before any user preference; `showToggle` controls whether the header
@@ -70,4 +73,4 @@ export default {
 	//   showHomeLink: true,
 	//   pagination: { enabled: true, pageSize: 10 },
 	// },
-};
+});

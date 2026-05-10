@@ -74,3 +74,56 @@ describe('output sanity', () => {
 		expect(failures).toEqual([]);
 	});
 });
+
+/**
+ * Vite optimisations are wired through `eleventyPluginThemerVite` in
+ * `eleventy.config.mjs`. These assertions catch silent regressions where the
+ * plugin loads but optimisations no-op (e.g. wrong key names, plugin queue
+ * order shifts, or a future API change drops one of these passes).
+ */
+describe('vite optimisations ran', () => {
+	let pages;
+
+	beforeAll(() => {
+		pages = walkHtml(sitePath);
+	});
+
+	it('minifyHTML stripped inter-tag whitespace', () => {
+		// html-minifier-terser collapses the boilerplate between <!doctype>
+		// and <html>, and between <head>/<body>/their children. If any of
+		// those still has a newline between adjacent block tags, the
+		// minifier didn't run.
+		const failures = pages.filter((p) => {
+			const html = fs.readFileSync(p, 'utf8');
+			return (
+				/<!doctype html>\s*\n/i.test(html) ||
+				/<\/head>\s*\n\s*<body/i.test(html)
+			);
+		});
+		expect(failures).toEqual([]);
+	});
+
+	it('criticalCSS inlined a <style> block on the homepage', () => {
+		const html = fs.readFileSync(path.join(sitePath, 'index.html'), 'utf8');
+		// Critters inlines critical CSS as a <style> in the head.
+		expect(/<style[^>]*>[\s\S]+?<\/style>/i.test(html)).toBe(true);
+	});
+
+	it('rollup emitted a hashed main script bundle', () => {
+		const scriptsDir = path.join(sitePath, 'assets', 'scripts');
+		expect(fs.existsSync(scriptsDir)).toBe(true);
+		const hashed = fs
+			.readdirSync(scriptsDir)
+			.filter((f) => /^main\.[A-Za-z0-9_-]{6,}\.js$/.test(f));
+		expect(hashed.length).toBeGreaterThan(0);
+	});
+
+	it('rollup emitted a hashed main CSS bundle', () => {
+		const cssDir = path.join(sitePath, 'assets', 'css');
+		expect(fs.existsSync(cssDir)).toBe(true);
+		const hashed = fs
+			.readdirSync(cssDir)
+			.filter((f) => /\.[A-Za-z0-9_-]{6,}\.css$/.test(f));
+		expect(hashed.length).toBeGreaterThan(0);
+	});
+});

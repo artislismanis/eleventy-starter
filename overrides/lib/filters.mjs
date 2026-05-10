@@ -1,23 +1,23 @@
 /**
- * Custom Filters
+ * Project filters — registered after the theme's filters, so any name that
+ * collides with a theme filter (e.g. `escapeHtml`, `dateToFormat`) wins from
+ * here.
  *
- * The active theme's filters are auto-registered by the plugin BEFORE this
- * file. Entries returned here register afterwards with the same
- * `addFilter` calls, so:
+ * Default export: an object whose keys become Nunjucks filter names. The
+ * plugin auto-discovers this file at `overrides/lib/filters.{mjs,js}`.
  *
- *   - new keys add new filters
- *   - keys matching a theme filter SHADOW the theme's by name
- *
- * The active theme's filter inventory lives in
- * `node_modules/<theme-package>/lib/filters.mjs`. Read it before shadowing
- * — security-critical helpers like `escapeHtml`, `escapeAttr`,
- * `escapeCssValue`, `escapeJsString`, and `safeUrl` should usually be
- * extended rather than replaced.
- *
- * See `overrides/README.md` for the full override-cascade rules.
+ * The entries below are illustrative — keep, edit, or delete to taste.
  */
 
 export default {
-	// Add your custom filters here, e.g.:
-	// upper: (value) => String(value).toUpperCase(),
+	/**
+	 * Estimate reading time for a chunk of text, in minutes. Uses ~200 wpm.
+	 *
+	 *   {{ post.content | readingTime }} min read
+	 */
+	readingTime(text) {
+		if (typeof text !== 'string' || text.length === 0) return 0;
+		const words = text.trim().split(/\s+/).length;
+		return Math.max(1, Math.round(words / 200));
+	},
 };

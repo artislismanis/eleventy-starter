@@ -8,16 +8,18 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { resolveThemeMetadata } from '@eleventy-plugin-themer/core';
+import { createThemerProject } from '@eleventy-plugin-themer/core';
 import { createPostcssConfig } from '@eleventy-plugin-themer/build-vite/postcss';
 
 import { THEME_NAME } from './theme.config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const themeMetadata = resolveThemeMetadata(__dirname, THEME_NAME);
 
-export default await createPostcssConfig({
-	themeMetadata,
+const themer = createThemerProject({
+	theme: THEME_NAME,
 	projectRoot: __dirname,
-	userPlugins: [],
 });
+
+export default await createPostcssConfig(
+	themer.postcssOptions({ userPlugins: [] }),
+);

@@ -6,13 +6,21 @@ import EleventyPluginNavigation from '@11ty/eleventy-navigation';
 import { feedPlugin } from '@11ty/eleventy-plugin-rss';
 import EleventyPluginSyntaxhighlight from '@11ty/eleventy-plugin-syntaxhighlight';
 import { eleventyImageTransformPlugin } from '@11ty/eleventy-img';
-import { eleventyPluginThemer } from '@eleventy-plugin-themer/core';
+import { createThemerProject } from '@eleventy-plugin-themer/core';
 import { eleventyPluginThemerVite } from '@eleventy-plugin-themer/build-vite';
 
 import siteData from './content/_data/site.js';
 import { THEME_NAME, INPUT_DIR, OUTPUT_DIR } from './theme.config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Single source of truth for `{ theme, projectRoot }`. Returns pre-bound
+// helpers for the themer Eleventy plugin and the Vite/PostCSS adapters so
+// these values aren't repeated at every call site.
+const themer = createThemerProject({
+	theme: THEME_NAME,
+	projectRoot: __dirname,
+});
 
 export default async function (eleventyConfig) {
 	// Draft preprocessor: exclude draft posts in production builds
@@ -36,9 +44,7 @@ export default async function (eleventyConfig) {
 	// we'd have no `dir` to spread into the return value. Direct call is
 	// still a fully supported entry point. Plugins that don't need `dir`
 	// can register via `addPlugin(eleventyPluginThemer, ...)`.
-	const { dir: themeDir } = await eleventyPluginThemer(eleventyConfig, {
-		theme: THEME_NAME,
-		projectRoot: __dirname,
+	const { dir: themeDir } = await themer.eleventyPlugin(eleventyConfig, {
 		input: INPUT_DIR,
 		output: OUTPUT_DIR,
 	});
@@ -75,17 +81,22 @@ export default async function (eleventyConfig) {
 
 	// Vite: production optimisations, asset bundling. Reads cached theme
 	// metadata and feature discovery from the themer context populated above.
-	eleventyConfig.addPlugin(eleventyPluginThemerVite, {
-		theme: THEME_NAME,
-		projectRoot: __dirname,
-		optimizations: {
-			purgeCSS: true,
-			criticalCSS: true,
-			minifyHTML: true,
-			validateLinks: true,
-			preserveNonHtml: { extensions: ['xml', 'txt', 'xsl'] },
-		},
-	});
+	//
+	// PurgeCSS safelist note: theme defaults (theme.json#build.purgeCSS.safelist)
+	// merge with any user-supplied safelist here — theme entries first, user
+	// values appended and deduped. Merge logic lives in build-vite/theme-config.mjs.
+	eleventyConfig.addPlugin(
+		eleventyPluginThemerVite,
+		themer.viteOptions({
+			optimizations: {
+				purgeCSS: true,
+				criticalCSS: true,
+				minifyHTML: true,
+				validateLinks: true,
+				preserveNonHtml: { extensions: ['xml', 'txt', 'xsl'] },
+			},
+		}),
+	);
 
 	// Override directories (overrides/**/*.*) are watched by the themer plugin.
 	// Only register starter-specific watches here.
