@@ -1,16 +1,21 @@
 name: CI
 
-# NOTE: This workflow is currently expected to FAIL on `npm install` because
-# the starter consumes `@eleventy-plugin-themer/*` packages via local file://
-# paths during pre-release development. Once the plugin publishes to npm and
-# the starter's package.json is switched to semver ranges, this workflow will
-# light up. The job definitions below are deliberately complete so the switch
-# is a one-line edit.
+# NOTE: Auto-triggers (push / pull_request) are disabled while the starter
+# consumes `@eleventy-plugin-themer/*` via local `file://` paths — those don't
+# resolve on a hosted runner, so every job fails at `npm install` /
+# `import/no-unresolved`. Once the plugin is published to npm and the
+# starter's package.json switches to semver ranges, uncomment the push /
+# pull_request triggers below to re-enable. The job definitions are kept
+# deliberately complete so re-enabling is a one-line edit.
+#
+# In the meantime, the workflow can still be run manually from the Actions
+# tab via the "Run workflow" button (workflow_dispatch).
 
 on:
-  push:
-    branches: [feature/simplify-with-theme-structure, main]
-  pull_request:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+  # pull_request:
 
 jobs:
   lint:

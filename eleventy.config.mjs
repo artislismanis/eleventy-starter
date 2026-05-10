@@ -28,9 +28,14 @@ export default async function (eleventyConfig) {
 	});
 
 	// Theme: metadata, helpers, markdown setup, layout aliases, dir config,
-	// auto-discovery of overrides/lib/{filters,shortcodes}, theme.js validation.
-	// Called directly (not via addPlugin) so we can capture the computed `dir`.
-	// See plugin docs for `overridePaths` and other options.
+	// override watch targets, theme.js validation, feature discovery (cached
+	// on the shared themer context for the build adapter).
+	//
+	// We call the plugin directly (not via addPlugin) because Eleventy
+	// defers `addPlugin` execution until after this function returns, so
+	// we'd have no `dir` to spread into the return value. Direct call is
+	// still a fully supported entry point. Plugins that don't need `dir`
+	// can register via `addPlugin(eleventyPluginThemer, ...)`.
 	const { dir: themeDir } = await eleventyPluginThemer(eleventyConfig, {
 		theme: THEME_NAME,
 		projectRoot: __dirname,
@@ -68,9 +73,9 @@ export default async function (eleventyConfig) {
 		sharpOptions: { animated: true },
 	});
 
-	// Vite: production optimisations, feature discovery, asset bundling.
-	// See plugin docs for `viteOptions`, `overridePaths`, `scriptsEntry` etc.
-	await eleventyConfig.addPlugin(eleventyPluginThemerVite, {
+	// Vite: production optimisations, asset bundling. Reads cached theme
+	// metadata and feature discovery from the themer context populated above.
+	eleventyConfig.addPlugin(eleventyPluginThemerVite, {
 		theme: THEME_NAME,
 		projectRoot: __dirname,
 		optimizations: {
@@ -82,8 +87,9 @@ export default async function (eleventyConfig) {
 		},
 	});
 
+	// Override directories (overrides/**/*.*) are watched by the themer plugin.
+	// Only register starter-specific watches here.
 	eleventyConfig.addWatchTarget('./content/**/*.*');
-	eleventyConfig.addWatchTarget('./overrides/**/*.*');
 	eleventyConfig.addWatchTarget('./public/**/*.*');
 	eleventyConfig.addWatchTarget('./*.{mjs,js}');
 

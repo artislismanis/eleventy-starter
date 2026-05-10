@@ -1,52 +1,32 @@
 /**
  * Theme Configuration Overrides
  *
- * This file overrides the theme's default configuration.
- * Only include values you want to change from the theme defaults.
+ * This file overrides the active theme's default configuration.
+ * Only include the values you want to change — anything you omit falls back
+ * to the theme's defaults declared in its `theme.json`.
  *
- * Available sections:
- * - themeToggle: Dark/light mode toggle settings
- * - colors.light / colors.dark: Color palettes for light and dark themes
- * - typography: Font families, sizes, line heights
- * - logos: Paths to logo images
- * - social: Array of social media links
- * - analytics: Analytics service IDs
- * - codeHighlighting: PrismJS theme and diff-highlight settings
- * - features: Feature toggles (search, comments, etc.)
- * - navigation: Navigation settings
- * - footer: Footer configuration
+ * Top-level keys are validated **strictly** against the theme's defaults at
+ * build time, so a typo here fails fast with a helpful error pointing at the
+ * exact key (and the list of valid keys for the active theme).
  *
- * @see theme.json in the theme package for all available options
+ * @see node_modules/@eleventy-plugin-themer/theme-base/theme.json
+ *      for all the keys and shapes the active theme supports.
+ *
+ * @type {import('@eleventy-plugin-themer/core/types').ThemeUserConfig}
  */
-
 export default {
-	/**
-	 * Theme Toggle Configuration
-	 *
-	 * Controls the dark/light mode behavior:
-	 *
-	 * @property {string} defaultTheme - Initial theme mode:
-	 *   - 'auto': Use system preference (prefers-color-scheme)
-	 *   - 'light': Always start in light mode
-	 *   - 'dark': Always start in dark mode
-	 *
-	 * @property {boolean} showToggle - Whether to show the toggle button:
-	 *   - true: Show toggle button in header (users can switch manually)
-	 *   - false: Hide toggle button (theme follows defaultTheme/system only)
-	 *
-	 * Note: showToggle and defaultTheme are independent settings.
-	 * Example combinations:
-	 *   - defaultTheme: 'auto', showToggle: true  → Respects system, user can override
-	 *   - defaultTheme: 'dark', showToggle: true  → Starts dark, user can switch to light
-	 *   - defaultTheme: 'light', showToggle: false → Always light, no toggle shown
-	 *   - defaultTheme: 'auto', showToggle: false → Follows system, no manual override
-	 */
+	// --- Theme toggle ---------------------------------------------------------
+	// Controls dark/light mode behaviour. `defaultTheme` is the initial mode
+	// before any user preference; `showToggle` controls whether the header
+	// button is rendered.
 	themeToggle: {
-		defaultTheme: 'auto',
+		defaultTheme: 'auto', // 'auto' | 'light' | 'dark'
 		showToggle: true,
 	},
 
-	// Social links
+	// --- Social links ---------------------------------------------------------
+	// Each entry is rendered via the `socialUrl()` filter, which validates the
+	// URL protocol (only http/https/mailto/tel/relative are allowed).
 	social: [
 		{
 			platform: 'github',
@@ -55,7 +35,7 @@ export default {
 		},
 	],
 
-	// Footer configuration
+	// --- Footer ---------------------------------------------------------------
 	footer: {
 		copyright: ' © {year} Eleventy Starter',
 		startYear: 2024,
@@ -63,4 +43,31 @@ export default {
 		showGitSha: true,
 		gitHubRepo: 'https://github.com/artislismanis/eleventy-starter',
 	},
+
+	// --- Other commonly-overridden sections (uncomment to use) ---------------
+	//
+	// colors: {
+	//   light: { primary: '#172c51', accent: '#ca7033' },
+	//   dark:  { primary: '#5b9bd5', accent: '#ca7033' },
+	// },
+	//
+	// typography: {
+	//   fontFamily: 'system-ui, sans-serif',
+	//   fontFamilyHeading: 'inherit',
+	// },
+	//
+	// analytics: {
+	//   googleAnalytics: '',  // e.g. 'G-XXXXXXXXXX'
+	//   plausible: '',
+	// },
+	//
+	// codeHighlighting: {
+	//   prismTheme: 'prism-tomorrow',
+	//   diffHighlight: true,
+	// },
+	//
+	// navigation: {
+	//   showHomeLink: true,
+	//   pagination: { enabled: true, pageSize: 10 },
+	// },
 };

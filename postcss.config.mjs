@@ -1,33 +1,23 @@
-import postcssPresetEnv from 'postcss-preset-env';
-import cssnano from 'cssnano';
+/**
+ * PostCSS config — defers to the active theme's declared plugins via the
+ * `build.postcss.plugins` block in its `theme.json`.
+ *
+ * Append project-specific plugins to `userPlugins` if needed; they run after
+ * the theme defaults (PostCSS evaluates plugins in declaration order).
+ */
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-export default {
-	plugins: [
-		postcssPresetEnv({
-			stage: 3,
-			features: {
-				'nesting-rules': true,
-				'custom-properties': true,
-				'custom-media-queries': true,
-			},
-		}),
+import { resolveThemeMetadata } from '@eleventy-plugin-themer/core';
+import { createPostcssConfig } from '@eleventy-plugin-themer/build-vite/postcss';
 
-		...(process.env.NODE_ENV === 'production'
-			? [
-					cssnano({
-						preset: [
-							'default',
-							{
-								discardComments: {
-									removeAll: true,
-								},
-								normalizeWhitespace: true,
-								colormin: true,
-								minifyFontValues: true,
-							},
-						],
-					}),
-				]
-			: []),
-	],
-};
+import { THEME_NAME } from './theme.config.mjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const themeMetadata = resolveThemeMetadata(__dirname, THEME_NAME);
+
+export default await createPostcssConfig({
+	themeMetadata,
+	projectRoot: __dirname,
+	userPlugins: [],
+});

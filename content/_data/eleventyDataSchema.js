@@ -1,40 +1,11 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-import { z } from 'zod';
-import { fromZodError } from 'zod-validation-error';
-import { featuresFrontMatterSchema } from '@eleventy-plugin-themer/core';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.resolve(__dirname, '../..');
-
-let cachedFeaturesSchema = null;
-function getFeaturesSchema(themeMetadata) {
-	if (!cachedFeaturesSchema) {
-		cachedFeaturesSchema = featuresFrontMatterSchema(
-			projectRoot,
-			themeMetadata,
-		);
-	}
-	return cachedFeaturesSchema;
-}
-
 /**
  * Eleventy data schema — technical front-matter validation.
+ *
+ * Defers to the themer-provided helper, which validates the active theme's
+ * declared features plus the standard `draft` / `tags` / `date` fields.
  * Style/SEO concerns belong elsewhere (markdownlint, vale, etc.).
+ *
+ * The helper reads cached theme metadata from the themer context populated
+ * by `eleventyPluginThemer` in `eleventy.config.mjs`.
  */
-export default function () {
-	return async function (data) {
-		const schema = z.object({
-			draft: z.boolean().optional(),
-			features: getFeaturesSchema(data.themeMetadata),
-			tags: z.array(z.string()).optional(),
-			date: z.coerce.date().optional(),
-		});
-
-		const result = schema.safeParse(data);
-		if (result.error) {
-			throw fromZodError(result.error);
-		}
-	};
-}
+export { themerDataSchema as default } from '@eleventy-plugin-themer/core';
