@@ -15,7 +15,7 @@
  *   - `overrides/` contains only directories the plugin recognises — orphan
  *     directories silently do nothing and are almost always a typo.
  *   - `overrides/lib/` contains only files the plugin recognises.
- *   - `content/_data/theme.js` overrides validate against the theme's
+ *   - `theme.config.mjs` overrides validate against the theme's
  *     config schema (top-level keys checked strictly).
  */
 
@@ -174,9 +174,9 @@ describe('overrides/features/', () => {
 	});
 });
 
-describe('content/_data/theme.js overrides', () => {
+describe('theme.config.mjs overrides', () => {
 	it('validates against the active theme config schema', async () => {
-		const themePath = path.join(projectRoot, 'content', '_data', 'theme.js');
+		const themePath = path.join(projectRoot, 'theme.config.mjs');
 		if (!fs.existsSync(themePath)) return;
 
 		const mod = await import(themePath);
@@ -191,7 +191,7 @@ describe('content/_data/theme.js overrides', () => {
 				Object.keys(meta.config || {}).join(', ') ||
 				'(theme declares no config)';
 			throw new Error(
-				`Invalid theme overrides at content/_data/theme.js:\n` +
+				`Invalid theme overrides at theme.config.mjs:\n` +
 					`${formatZodIssues(result.error)}\n` +
 					`Allowed top-level keys: ${allowed}`,
 			);

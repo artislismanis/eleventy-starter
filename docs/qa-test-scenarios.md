@@ -38,16 +38,16 @@ Legend for each scenario: `[DEV]`, `[BUILD]`, or `[BOTH]`.
 
 ---
 
-## 2. Theme config cascade (`content/_data/theme.js`)
+## 2. Theme config cascade (`theme.config.mjs`)
 
 | # | Scenario | Mode | Steps | Expected |
 |---|----------|------|-------|----------|
-| 2.1 | Defaults apply | BOTH | Empty/minimal `theme.js` | Theme renders with theme.json `config` defaults (colors, typography, footer) |
+| 2.1 | Defaults apply | BOTH | Empty/minimal `theme.config.mjs` default export | Theme renders with theme.json `config` defaults (colors, typography, footer) |
 | 2.2 | Override merges deep | BOTH | Set `colors.light.primary` only | Single key overridden; sibling color keys retain theme defaults |
 | 2.3 | Strict-key validation | BUILD | Add a top-level typo key e.g. `themeTogle: {}` | Build fails: "Invalid theme configuration … Allowed top-level keys: …" |
-| 2.4 | Array replace semantics | BOTH | Override `social` array | User array replaces theme default array entirely (not concatenated) |
+| 2.4 | Array replace semantics | BOTH | Override `social` array | User array replaces theme default array entirely (not concatenated, not duplicated) |
 | 2.5 | `null` clears a value | BOTH | Set a default key to `null` | Value cleared, not skipped |
-| 2.6 | Async config function | BUILD | Export an async function from `theme.js` | Awaited and validated correctly |
+| 2.6 | Async config function | BUILD | Export an async function from `theme.config.mjs` | Awaited and validated correctly |
 | 2.7 | Prototype-pollution guard | BUILD | Add `__proto__`/`constructor`/`prototype` keys | Keys skipped; no pollution; build does not crash on them |
 | 2.8 | `defineThemeConfig` typing | — | Confirm identity wrapper | No runtime change; IDE typings only |
 | 2.9 | Theme toggle defaultTheme | DEV | Set `themeToggle.defaultTheme` to `auto`/`light`/`dark` | Initial color scheme respects setting; toggle button shows when `showToggle: true` |

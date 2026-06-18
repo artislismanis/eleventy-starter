@@ -1,16 +1,22 @@
 /**
  * Theme configuration entry point for this starter.
  *
- * Single source of truth for theme-level constants shared across the build
- * (Eleventy, Vite, PostCSS, tests) — so a value lives in exactly one place.
+ * Single source of truth for the theme:
+ *   - Named exports below: build-level constants shared across the build
+ *     (Eleventy, Vite, PostCSS, tests) — so a value lives in exactly one place.
+ *   - Default export below: *content overrides* (colors, social links, footer,
+ *     analytics, etc.). Top-level keys are validated against the active theme's
+ *     defaults (`theme.json#config`) at build time, so a typo fails fast.
  *
- * For *content overrides* (colors, social links, footer, analytics, etc.)
- * edit `content/_data/theme.js`. Top-level keys there are validated against
- * the active theme's defaults (`theme.json#config`) at build time.
+ * This file lives at the project root — deliberately NOT in `content/_data` —
+ * so it is read only once by the themer plugin. A `theme.*` file inside the
+ * Eleventy data dir would also be auto-loaded as a `theme` global and
+ * duplicate every array key (e.g. social links) via Eleventy's deep merge.
  *
  * For *code overrides* (filters, shortcodes, layouts, features, styles,
  * scripts) see the `overrides/` directory and `overrides/README.md`.
  */
+import { defineThemeConfig } from '@eleventy-plugin-themer/core';
 
 /**
  * Active theme package. Resolved via Node's module resolution; must be a
@@ -33,7 +39,7 @@ export const OUTPUT_DIR = '_site';
  * -------------------------------------------------------------------------
  *
  * Theme config (data overrides — colors, copy, toggles):
- *   content/_data/theme.js
+ *   the `defineThemeConfig({ ... })` default export below
  *   - Strict-key validation against the active theme's defaults; typos fail
  *     the build with the list of valid keys.
  *
@@ -61,3 +67,76 @@ export const OUTPUT_DIR = '_site';
  *   public/
  * -------------------------------------------------------------------------
  */
+
+/**
+ * Content overrides for the active theme.
+ *
+ * Only include the values you want to change — anything you omit falls back to
+ * the theme's defaults declared in its `theme.json`. Top-level keys are
+ * validated **strictly** against those defaults at build time, so a typo here
+ * fails fast with a helpful error pointing at the exact key (and the list of
+ * valid keys for the active theme).
+ *
+ * `defineThemeConfig` is an identity helper whose only purpose is to give the
+ * editor `ThemeUserConfig` auto-completion via JSDoc.
+ *
+ * @see node_modules/@eleventy-plugin-themer/theme-base/theme.json
+ *      for all the keys and shapes the active theme supports.
+ */
+export default defineThemeConfig({
+	// --- Theme toggle ---------------------------------------------------------
+	// Controls dark/light mode behaviour. `defaultTheme` is the initial mode
+	// before any user preference; `showToggle` controls whether the header
+	// button is rendered.
+	themeToggle: {
+		defaultTheme: 'auto', // 'auto' | 'light' | 'dark'
+		showToggle: true,
+	},
+
+	// --- Social links ---------------------------------------------------------
+	// Each entry is rendered via the `socialUrl()` filter, which validates the
+	// URL protocol (only http/https/mailto/tel/relative are allowed).
+	social: [
+		{
+			platform: 'github',
+			url: 'https://github.com/artislismanis',
+			label: 'GitHub',
+		},
+	],
+
+	// --- Footer ---------------------------------------------------------------
+	footer: {
+		copyright: ' © {year} Eleventy Starter',
+		startYear: 2024,
+		showPoweredBy: true,
+		showGitSha: true,
+		gitHubRepo: 'https://github.com/artislismanis/eleventy-starter',
+	},
+
+	// --- Other commonly-overridden sections (uncomment to use) ---------------
+	//
+	// colors: {
+	//   light: { primary: '#172c51', accent: '#ca7033' },
+	//   dark:  { primary: '#5b9bd5', accent: '#ca7033' },
+	// },
+	//
+	// typography: {
+	//   fontFamily: 'system-ui, sans-serif',
+	//   fontFamilyHeading: 'inherit',
+	// },
+	//
+	// analytics: {
+	//   googleAnalytics: '',  // e.g. 'G-XXXXXXXXXX'
+	//   plausible: '',
+	// },
+	//
+	// codeHighlighting: {
+	//   prismTheme: 'prism-tomorrow',
+	//   diffHighlight: true,
+	// },
+	//
+	// navigation: {
+	//   showHomeLink: true,
+	//   pagination: { enabled: true, pageSize: 10 },
+	// },
+});

@@ -38,7 +38,7 @@ npm run deploy:force  # deploy from any branch
 
 ### Theme configuration
 
-User-facing theme config lives in `content/_data/theme.js`. The plugin validates this against the theme's declared schema — unknown top-level keys throw. Inner shapes are unconstrained, so themes can evolve their config without breaking the starter.
+User-facing theme config lives in the default export of `theme.config.mjs` (project root, **not** `content/_data` — a `theme.*` file in the Eleventy data dir would be auto-loaded as a second `theme` global and duplicate array keys like social links). The plugin validates it against the theme's declared schema — unknown top-level keys throw. Inner shapes are unconstrained, so themes can evolve their config without breaking the starter.
 
 ### Adding a page or post
 
@@ -97,8 +97,8 @@ PurgeCSS safelist patterns merge from three layers — see `README.md` for the m
 | File                                  | Purpose                                                    |
 | ------------------------------------- | ---------------------------------------------------------- |
 | `eleventy.config.mjs`                 | Plugin registration, optimizations, dirs                   |
+| `theme.config.mjs`                    | Theme constants + content overrides (validated vs schema)  |
 | `content/_data/site.js`               | Site metadata (title, url, etc.)                           |
-| `content/_data/theme.js`              | Theme overrides (validated against plugin schema)          |
 | `content/_data/eleventyDataSchema.js` | Front-matter validation (uses `featuresFrontMatterSchema`) |
 | `overrides/lib/filters.mjs`           | Project-specific Nunjucks filters                          |
 | `overrides/lib/shortcodes.mjs`        | Project-specific shortcodes                                |

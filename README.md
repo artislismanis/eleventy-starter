@@ -26,8 +26,9 @@ npm run build   # Production build
 ## Project Structure
 
 ```text
+theme.config.mjs   # Theme constants + content overrides (colors, social, footer)
 content/           # Site content (pages, posts, data)
-  _data/           # Global data files (site.js, theme.js, build.js)
+  _data/           # Global data files (site.js, build.js)
   posts/           # Blog posts
 overrides/         # Theme overrides
   layouts/         # Custom layout overrides
