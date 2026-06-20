@@ -1,21 +1,10 @@
 name: CI
 
-# NOTE: Auto-triggers (push / pull_request) are disabled while the starter
-# consumes `@eleventy-plugin-themer/*` via local `file://` paths — those don't
-# resolve on a hosted runner, so every job fails at `npm install` /
-# `import/no-unresolved`. Once the plugin is published to npm and the
-# starter's package.json switches to semver ranges, uncomment the push /
-# pull_request triggers below to re-enable. The job definitions are kept
-# deliberately complete so re-enabling is a one-line edit.
-#
-# In the meantime, the workflow can still be run manually from the Actions
-# tab via the "Run workflow" button (workflow_dispatch).
-
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [main]
-  # pull_request:
+  push:
+    branches: [main]
+  pull_request:
 
 # Opt action JS runtimes into Node 24 ahead of the June 2026 default flip.
 # Project Node version (under setup-node) stays at 22 (current LTS).
