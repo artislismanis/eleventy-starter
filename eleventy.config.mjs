@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'node:module';
 
 import { HtmlBasePlugin, InputPathToUrlTransformPlugin } from '@11ty/eleventy';
 import EleventyPluginNavigation from '@11ty/eleventy-navigation';
@@ -92,8 +93,10 @@ export default async function (eleventyConfig) {
 				purgeCSS: true,
 				criticalCSS: true,
 				minifyHTML: true,
-				validateLinks: true,
+				// preserveNonHtml MUST run before validateLinks so restored files
+				// (feed.xml, sitemap.xml, robots.txt) exist when links are checked.
 				preserveNonHtml: { extensions: ['xml', 'txt', 'xsl'] },
+				validateLinks: true,
 			},
 		}),
 	);
@@ -103,6 +106,15 @@ export default async function (eleventyConfig) {
 	eleventyConfig.addWatchTarget(`./${INPUT_DIR}/**/*.*`);
 	eleventyConfig.addWatchTarget('./public/**/*.*');
 	eleventyConfig.addWatchTarget('./*.{mjs,js}');
+
+	// Local theme development: when the active theme is `npm link`ed (or a
+	// `file:` dep), watch its real on-disk layouts so `.njk` edits trigger a
+	// rebuild (Vite HMR already covers SCSS/JS). Resolves the actual path, so
+	// it follows the symlink and is harmless for the published package.
+	const themeRequire = createRequire(import.meta.url);
+	eleventyConfig.addWatchTarget(
+		path.dirname(themeRequire.resolve(`${THEME_NAME}/layouts/base.njk`)),
+	);
 
 	eleventyConfig.setChokidarConfig({ usePolling: true, interval: 100 });
 

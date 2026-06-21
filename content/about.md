@@ -9,3 +9,5 @@ eleventyNavigation:
 ## Blah
 
 I am a person that writes stuff.
+
+[Google](https://google.com)

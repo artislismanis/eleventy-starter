@@ -10,3 +10,5 @@ _site/
 
 # Ignore unlighthouse reports
 .unlighthouse
+# AI tools (local)
+.claude/
