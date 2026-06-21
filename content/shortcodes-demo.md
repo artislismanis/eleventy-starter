@@ -9,7 +9,7 @@ features:
   - code-highlighting
 ---
 
-# Layout Shortcodes Demo
+<h1>{{ title }}</h1>
 
 This page demonstrates the paired shortcodes for layouts and content boxes.
 
@@ -26,7 +26,8 @@ title, subtitle, and action buttons.
 ### Hero usage
 
 ```jinja2
-{% raw %}{% hero
+{% raw %}{%
+  hero
   title="Welcome",
   subtitle="Build with ease",
   align="center"
@@ -51,6 +52,7 @@ The `contentGrid` shortcode creates a responsive grid; `box` creates the cards
 
 {% contentGrid cols=3, gap="1.5rem" %}
 {% box title="Fast Performance", link="/about", linkText="Learn More" %}
+
 <p>Built with modern tools and optimized for speed.</p>
 {% endbox %}
 {% box title="Easy Customization", link="/about", linkText="Explore" %}
@@ -88,6 +90,7 @@ box plus a `span=1` box gives a 2/3 + 1/3 split:
 
 {% contentGrid cols=3, gap="1.5rem" %}
 {% box title="Main — span 2", span=2 %}
+
 <p>This box spans two of the three columns.</p>
 {% endbox %}
 {% box title="Side — span 1" %}
@@ -99,6 +102,7 @@ With `cols=4`, `span=1` + `span=3` gives a 1/4 + 3/4 split:
 
 {% contentGrid cols=4, gap="1.5rem" %}
 {% box title="1/4", span=1 %}
+
 <p>Sidebar-width card.</p>
 {% endbox %}
 {% box title="3/4", span=3 %}
@@ -127,6 +131,7 @@ Boxes can be used without action buttons for simple content cards:
 
 {% contentGrid cols=4, gap="1rem" %}
 {% box title="Step 1" %}
+
 <p>Install the theme package.</p>
 {% endbox %}
 {% box title="Step 2" %}
