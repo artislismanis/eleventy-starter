@@ -102,6 +102,11 @@ export default defineThemeConfig({
 			url: 'https://github.com/artislismanis',
 			label: 'GitHub',
 		},
+		{
+			platform: 'rss',
+			url: '/feed.xml',
+			label: 'RSS feed',
+		},
 	],
 
 	// --- Footer ---------------------------------------------------------------
