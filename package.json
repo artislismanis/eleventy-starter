@@ -78,7 +78,7 @@
 		"stylelint-config-standard-scss": "^16.0.0",
 		"stylelint-scss": "^6.12.1",
 		"unlighthouse": "^0.18.0",
-		"vite": "^7.1.7"
+		"vite": "^8.2.0"
 	},
 	"devDependencies": {
 		"gray-matter": "^4.0.3",
