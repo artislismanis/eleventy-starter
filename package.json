@@ -60,7 +60,7 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-import": "^2.32.0",
 		"eslint-plugin-promise": "^7.2.1",
-		"git-branch": "^1.0.0",
+		"git-branch": "^2.0.1",
 		"globals": "^17.11.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^17.3.0",
@@ -92,6 +92,8 @@
 			"js-yaml": "^4.3.1",
 			"markdown-it": "^14.2.0"
 		},
-		"lighthouse": "^13.4.1"
+		"lighthouse": "^13.4.1",
+		"braces": "^3.0.3",
+		"micromatch": "^4.0.8"
 	}
 }
