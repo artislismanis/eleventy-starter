@@ -54,7 +54,7 @@
 		"@eleventy-plugin-themer/theme-base": "^0.4.0",
 		"cssnano": "^9.0.4",
 		"del-cli": "^7.0.0",
-		"dotenv": "^17.2.3",
+		"dotenv": "^18.0.4",
 		"git-branch": "^2.0.1",
 		"postcss": "^8.5.28",
 		"postcss-preset-env": "^11.5.2",
